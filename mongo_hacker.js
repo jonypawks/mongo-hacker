@@ -25,14 +25,14 @@ __ansi = {
         magenta: '5',
         cyan: '6'  
     }
-}
+};
 
 if (_isWindows()) {
   print("\nSorry! MongoDB Shell Enhancements for Hackers isn't compatible with Windows.\n");
 }
 
 var ver = db.version().split(".");
-if ( ver[0] <= parseInt("2") && ver[1] < parseInt("2") ) {
+if ( ver[0] <= parseInt("2", 10) && ver[1] < parseInt("2", 10) ) {
   print(colorize("\nSorry! Mongo Shell version 2.2.x and above is required! Please upgrade.\n", "red", true));
 } 
 
@@ -40,21 +40,21 @@ setVerboseShell(false);
 setIndexParanoia(true);
 setAutoMulti(true);
 
-__indent = "  "
+__indent = "  ";
 
 function setIndexParanoia( value ) { 
-    if( value == undefined ) value = true; 
+    if( value === undefined ) value = true; 
     _indexParanoia = value; 
 }
 
 function setAutoMulti( value ) { 
-    if( value == undefined ) value = true; 
+    if( value === undefined ) value = true; 
     _autoMulti = value; 
 }
 
 function controlCode( parameters ) {
-    if ( parameters == undefined ) {
-    	parameters = "";
+    if ( parameters === undefined ) {
+      parameters = "";
     }
     else if (typeof(parameters) == 'object' && (parameters instanceof Array)) {
         parameters = parameters.join(';');
@@ -73,19 +73,19 @@ function colorize( string, color, bright, underline ) {
 
     params.push(code);
 
-    if ( bright == true ) params.push(__ansi.bright);
-    if ( underline == true ) params.push(__ansi.underline);
+    if ( bright === true ) params.push(__ansi.bright);
+    if ( underline === true ) params.push(__ansi.underline);
 
     return applyColorCode( string, params );
 }
 
 ObjectId.prototype.toString = function() {
     return this.str;
-}
+};
 
 ObjectId.prototype.tojson = function(indent, nolint) {
     return tojson(this);
-}
+};
 
 Date.prototype.tojson = function() {
 
@@ -93,27 +93,26 @@ Date.prototype.tojson = function() {
 
     var year = this['get'+UTC+'FullYear']().zeroPad(4);
     var month = (this['get'+UTC+'Month']() + 1).zeroPad(2);
-    var date = this['get'+UTC+'Date']().zeroPad(2);
     var hour = this['get'+UTC+'Hours']().zeroPad(2);
     var minute = this['get'+UTC+'Minutes']().zeroPad(2);
-    var sec = this['get'+UTC+'Seconds']().zeroPad(2)
+    var sec = this['get'+UTC+'Seconds']().zeroPad(2);
+    var date =  colorize('"' + year + month + date + 'T' + hour +':' + minute + ':' + sec + ofs + '"', "cyan");
 
     if (this['get'+UTC+'Milliseconds']())
-        sec += '.' + this['get'+UTC+'Milliseconds']().zeroPad(3)
+        sec += '.' + this['get'+UTC+'Milliseconds']().zeroPad(3);
 
     var ofs = 'Z';
     if (!Date.printAsUTC) {
         var ofsmin = this.getTimezoneOffset();
-        if (ofsmin != 0){
+        if (ofsmin !== 0){
             ofs = ofsmin > 0 ? '-' : '+'; // This is correct
-            ofs += (ofsmin/60).zeroPad(2)
-            ofs += (ofsmin%60).zeroPad(2)
+            ofs += (ofsmin/60).zeroPad(2);
+            ofs += (ofsmin%60).zeroPad(2);
         }
     }
 
-    var date =  colorize('"' + year + month + date + 'T' + hour +':' + minute + ':' + sec + ofs + '"', "cyan");
     return 'ISODate(' + date + ')';
-}
+};
 
 Array.tojson = function( a , indent , nolint ){
     var lineEnding = nolint ? " " : "\n";
@@ -124,7 +123,7 @@ Array.tojson = function( a , indent , nolint ){
     if ( nolint )
         indent = "";
 
-    if (a.length == 0) {
+    if (a.length === 0) {
         return "[ ]";
     }
 
@@ -136,14 +135,14 @@ Array.tojson = function( a , indent , nolint ){
             s += "," + lineEnding;
         }
     }
-    if ( a.length == 0 ) {
+    if ( a.length === 0 ) {
         s += indent;
     }
 
     indent = indent.substring(__indent.length);
     s += lineEnding+indent+"]";
     return s;
-}
+};
 
 tojson = function( x, indent , nolint ) {
     if ( x === null )
@@ -160,49 +159,48 @@ tojson = function( x, indent , nolint ) {
         indent = "";
 
     switch ( typeof x ) {
-    case "string": {
-        var s = "\"";
-        for ( var i=0; i<x.length; i++ ){
-            switch (x[i]){
-                case '"': s += '\\"'; break;
-                case '\\': s += '\\\\'; break;
-                case '\b': s += '\\b'; break;
-                case '\f': s += '\\f'; break;
-                case '\n': s += '\\n'; break;
-                case '\r': s += '\\r'; break;
-                case '\t': s += '\\t'; break;
+      case "string":
+          var s = "\"";
+          for ( var i=0; i<x.length; i++ ){
+              switch (x[i]) {
+                  case '"': s += '\\"'; break;
+                  case '\\': s += '\\\\'; break;
+                  case '\b': s += '\\b'; break;
+                  case '\f': s += '\\f'; break;
+                  case '\n': s += '\\n'; break;
+                  case '\r': s += '\\r'; break;
+                  case '\t': s += '\\t'; break;
 
-                default: {
-                    var code = x.charCodeAt(i);
-                    if (code < 0x20){
-                        s += (code < 0x10 ? '\\u000' : '\\u00') + code.toString(16);
-                    } else {
-                        s += x[i];
-                    }
-                }
-            }
-        }
-        s += "\""
-        return colorize(s, "green", true);
-    }
-    case "number":
-        return colorize(x, "red") 
-    case "boolean":
-        return colorize("" + x, "blue");
-    case "object": {
-        var s = tojsonObject( x, indent , nolint );
-        if ( ( nolint == null || nolint == true ) && s.length < 80 && ( indent == null || indent.length == 0 ) ){
-            s = s.replace( /[\s\r\n ]+/gm , " " );
-        }
-        return s;
-    }
-    case "function":
-        return colorize(x.toString(), "magenta")
-    default:
-        throw "tojson can't handle type " + ( typeof x );
+                  default:
+                      var code = x.charCodeAt(i);
+                      if (code < 0x20){
+                          s += (code < 0x10 ? '\\u000' : '\\u00') + code.toString(16);
+                      } else {
+                          s += x[i];
+                      }
+              }
+          }
+          s += "\"";
+          return colorize(s, "green", true);
+
+      case "number":
+          return colorize(x, "red");
+      case "boolean":
+          return colorize("" + x, "blue");
+      case "object":
+          s = tojsonObject( x, indent , nolint );
+          if ( ( nolint === null || nolint === true ) && s.length < 80 && ( indent === null || indent.length === 0 ) ){
+              s = s.replace( /[\s\r\n ]+/gm , " " );
+          }
+          return s;
+
+      case "function":
+          return colorize(x.toString(), "magenta");
+      default:
+          throw "tojson can't handle type " + ( typeof x );
     }
     
-}
+};
 
 tojsonObject = function( x, indent , nolint ) {
     var lineEnding = nolint ? " " : "\n";
@@ -233,7 +231,7 @@ tojsonObject = function( x, indent , nolint ) {
     
     var total = 0;
     for ( var k in x ) total++;
-    if ( total == 0 ) {
+    if ( total === 0 ) {
         s += indent + lineEnding;
     }
 
@@ -241,7 +239,7 @@ tojsonObject = function( x, indent , nolint ) {
     if ( typeof( x._simpleKeys ) == "function" )
         keys = x._simpleKeys();
     var num = 1;
-    for ( var k in keys ){
+    for ( k in keys ){
         
         var val = x[k];
         if ( val == DB.prototype || val == DBCollection.prototype )
@@ -258,7 +256,7 @@ tojsonObject = function( x, indent , nolint ) {
     // pop one level of indent
     indent = indent.substring(__indent.length);
     return s + indent + "}";
-}
+};
 
 // Hardcode multi update -- now you only need to remember upsert
 DBCollection.prototype.update = function( query , obj , upsert, multi ) {
@@ -268,7 +266,7 @@ DBCollection.prototype.update = function( query , obj , upsert, multi ) {
     var firstKey = null;
     for (var k in obj) { firstKey = k; break; }
 
-    if (firstKey != null && firstKey[0] == '$') {
+    if (firstKey !== null && firstKey[0] == '$') {
         // for mods we only validate partially, for example keys may have dots
         this._validateObject( obj );
     } else {
@@ -288,33 +286,33 @@ DBCollection.prototype.update = function( query , obj , upsert, multi ) {
     this._db._initExtraInfo();
     this._mongo.update( this._fullName , query , obj , upsert ? true : false , _autoMulti ? true : multi );
     this._db._getExtraInfo("Updated");
-}
+};
 
 // Override group because map/reduce style is deprecated
 DBCollection.prototype.group = function( name, group_field, operation, op_value, filter ) {
     var ops = [];
     var group_op = { $group: { _id: '$' + group_field } };
 
-    if (filter != undefined) {
-        ops.push({ '$match': filter })
+    if (filter !== undefined) {
+        ops.push({ '$match': filter });
     }
   
-    group_op['$group'][name] = { };
-    group_op['$group'][name]['$' + operation] = op_value
+    group_op.$group[name] = { };
+    group_op.$group[name]['$' + operation] = op_value;
     ops.push(group_op);
 
     return this.aggregate(ops);
-}
+};
 
 // Function that groups and counts by group after applying filter
 DBCollection.prototype.gcount = function( group_field, filter ) {
     return this.group('count', group_field, 'sum', 1, filter);
-}
+};
 
 // Function that groups and sums sum_field after applying filter
 DBCollection.prototype.gsum = function( group_field, sum_field, filter ) {
     return this.group('sum', group_field, 'sum', '$' + sum_field, filter);
-}
+};
 
 // Improve the default prompt with hostname, process type, and version
 prompt = function() {
@@ -322,8 +320,9 @@ prompt = function() {
     var host = serverstatus.host;
     var process = serverstatus.process;
     var version = db.serverBuildInfo().version;
-    return host + "(" + process + "-" + version + ")>";
-}
+    //return host + "(" + process + "-" + version + ")>";
+    return [host] + " > ";
+};
 
 DBQuery.prototype.shellPrint = function(){
     try {
@@ -369,4 +368,4 @@ DBQuery.prototype.shellPrint = function(){
         print( e );
     }
 
-}
+};
