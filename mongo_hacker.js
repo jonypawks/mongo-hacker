@@ -1,7 +1,7 @@
-/* 
+/*
  *
  * Mongo Hacker
- * MongoDB Shell Enhancements for Hackers 
+ * MongoDB Shell Enhancements for Hackers
  *
  * Tyler J. Brock - 2012
  *
@@ -34,7 +34,7 @@ if (_isWindows()) {
 var ver = db.version().split(".");
 if ( ver[0] <= parseInt("2", 10) && ver[1] < parseInt("2", 10) ) {
   print(colorize("\nSorry! Mongo Shell version 2.2.x and above is required! Please upgrade.\n", "red", true));
-} 
+}
 
 setVerboseShell(false);
 setIndexParanoia(true);
@@ -42,14 +42,14 @@ setAutoMulti(false);
 
 __indent = "  ";
 
-function setIndexParanoia( value ) { 
-    if( value === undefined ) value = true; 
-    _indexParanoia = value; 
+function setIndexParanoia( value ) {
+    if( value === undefined ) value = true;
+    _indexParanoia = value;
 }
 
-function setAutoMulti( value ) { 
-    if( value === undefined ) value = true; 
-    _autoMulti = value; 
+function setAutoMulti( value ) {
+    if( value === undefined ) value = true;
+    _autoMulti = value;
 }
 
 function controlCode( parameters ) {
@@ -93,10 +93,12 @@ Date.prototype.tojson = function() {
 
     var year = this['get'+UTC+'FullYear']().zeroPad(4);
     var month = (this['get'+UTC+'Month']() + 1).zeroPad(2);
+    var date = (this['get'+UTC+'Date']()).zeroPad(2);
     var hour = this['get'+UTC+'Hours']().zeroPad(2);
     var minute = this['get'+UTC+'Minutes']().zeroPad(2);
     var sec = this['get'+UTC+'Seconds']().zeroPad(2);
-    var date =  colorize('"' + year + month + date + 'T' + hour +':' + minute + ':' + sec + ofs + '"', "cyan");
+    var display =  colorize('"' + year + '-' + month + '-' + date + 'T' + hour +
+                            ':' + minute + ':' + sec + '"', "cyan");
 
     if (this['get'+UTC+'Milliseconds']())
         sec += '.' + this['get'+UTC+'Milliseconds']().zeroPad(3);
@@ -111,7 +113,7 @@ Date.prototype.tojson = function() {
         }
     }
 
-    return 'ISODate(' + date + ')';
+    return 'ISODate(' + display + ')';
 };
 
 Array.tojson = function( a , indent , nolint ){
@@ -155,7 +157,7 @@ tojson = function( x, indent , nolint ) {
         return 'ObjectId(' + colorize('"' + x.str + '"', "green", false, true) + ')';
     }
 
-    if (!indent) 
+    if (!indent)
         indent = "";
 
     switch ( typeof x ) {
@@ -207,7 +209,7 @@ tojsonObject = function( x, indent , nolint ) {
 
     assert.eq( ( typeof x ) , "object" , "tojsonObject needs object, not [" + ( typeof x ) + "]" );
 
-    if (!indent) 
+    if (!indent)
         indent = "";
 
     if ( typeof( x.tojson ) == "function" && x.tojson != tojson ) {
@@ -273,7 +275,7 @@ DBCollection.prototype.update = function( query , obj , upsert, multi ) {
         this._validateForStorage( obj );
     }
 
-    // can pass options via object for improved readability    
+    // can pass options via object for improved readability
     if ( typeof(upsert) === 'object' ) {
         assert( multi === undefined, "Fourth argument must be empty when specifying upsert and multi with an object." );
 
