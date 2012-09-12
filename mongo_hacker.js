@@ -23,7 +23,7 @@ __ansi = {
         yellow: '3',
         blue: '4',
         magenta: '5',
-        cyan: '6'  
+        cyan: '6'
     }
 };
 
@@ -147,14 +147,14 @@ Array.tojson = function( a , indent , nolint ){
 tojson = function( x, indent , nolint ) {
     if ( x === null )
         return colorize("null", "red", true);
-    
+
     if ( x === undefined )
         return colorize("undefined", "magenta", true);
 
     if ( x.isObjectId ) {
         return 'ObjectId(' + colorize('"' + x.str + '"', "green", false, true) + ')';
     }
-    
+
     if (!indent) 
         indent = "";
 
@@ -199,22 +199,21 @@ tojson = function( x, indent , nolint ) {
       default:
           throw "tojson can't handle type " + ( typeof x );
     }
-    
 };
 
 tojsonObject = function( x, indent , nolint ) {
     var lineEnding = nolint ? " " : "\n";
     var tabSpace = nolint ? "" : __indent;
-    
+
     assert.eq( ( typeof x ) , "object" , "tojsonObject needs object, not [" + ( typeof x ) + "]" );
 
     if (!indent) 
         indent = "";
-    
+
     if ( typeof( x.tojson ) == "function" && x.tojson != tojson ) {
         return x.tojson(indent,nolint);
     }
-    
+
     if ( x.constructor && typeof( x.constructor.tojson ) == "function" && x.constructor.tojson != tojson ) {
         return x.constructor.tojson( x, indent , nolint );
     }
@@ -223,12 +222,12 @@ tojsonObject = function( x, indent , nolint ) {
         return "{ $maxKey : 1 }";
     if ( x.toString() == "[object MinKey]" )
         return "{ $minKey : 1 }";
-    
+
     var s = "{" + lineEnding;
 
     // push one level of indent
     indent += tabSpace;
-    
+
     var total = 0;
     for ( var k in x ) total++;
     if ( total === 0 ) {
@@ -240,7 +239,7 @@ tojsonObject = function( x, indent , nolint ) {
         keys = x._simpleKeys();
     var num = 1;
     for ( k in keys ){
-        
+
         var val = x[k];
         if ( val == DB.prototype || val == DBCollection.prototype )
             continue;
@@ -296,7 +295,7 @@ DBCollection.prototype.group = function( name, group_field, operation, op_value,
     if (filter !== undefined) {
         ops.push({ '$match': filter });
     }
-  
+
     group_op.$group[name] = { };
     group_op.$group[name]['$' + operation] = op_value;
     ops.push(group_op);
