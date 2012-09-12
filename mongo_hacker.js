@@ -38,7 +38,7 @@ if ( ver[0] <= parseInt("2", 10) && ver[1] < parseInt("2", 10) ) {
 
 setVerboseShell(false);
 setIndexParanoia(true);
-setAutoMulti(true);
+setAutoMulti(false);
 
 __indent = "  ";
 
@@ -320,8 +320,7 @@ prompt = function() {
     var host = serverstatus.host;
     var process = serverstatus.process;
     var version = db.serverBuildInfo().version;
-    //return host + "(" + process + "-" + version + ")>";
-    return [host] + " > ";
+    return "(" + version + ") " + host + " > ";
 };
 
 DBQuery.prototype.shellPrint = function(){
